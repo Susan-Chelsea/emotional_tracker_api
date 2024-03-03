@@ -15,7 +15,7 @@ exports.getAllJournals = (req, res) => {
 }
 
 exports.getAllJournalsByUserId = (req, res) => {
-    const { userId } = req.params;
+    const {userId} = req.params;
     const selectSQL = `SELECT * FROM journal where user_id = ${userId}`;
 
     database.query(selectSQL)
@@ -31,15 +31,23 @@ exports.getAllJournalsByUserId = (req, res) => {
 
 exports.getJournalById = (req, res) => {
     const {id} = req.params
+    const userId = req.body.userId;
 
-    const selectSQL = `SELECT * FROM journal where journal_id = ${id}`;
+    const selectSQL = `SELECT * FROM journal where journal_id = ${id} and user_id = ${userId}`;
 
     database.query(selectSQL)
         .then(([rows, _fieldData]) => {
-            res.status(200).json({
-                success: true,
-                journal: rows,
-            });
+            if (rows[0]) {
+                res.status(200).json({
+                    success: true,
+                    journal: rows[0],
+                });
+            } else {
+                res.status(200).json({
+                    success: false,
+                    message: 'No journal found'
+                });
+            }
         }).catch(error => {
         handleError(error, res);
     });
@@ -65,25 +73,28 @@ exports.addJournal = (req, res) => {
 
 exports.updateJournal = (req, res) => {
     const {id} = req.params;
-    const journal = Object.values(req.body).map(value => value.trim());
-    journal.push(id);
+    const journal = Object.values(req.body).map(value =>  value);;
 
-    const sql = "UPDATE journal SET title = ?, anger = ?, contempt = ?, disgust = ?, enjoyment = ?, fear = ?, sadness = ?, surprise = ?, trigger_reason = ?, datetime = ?, notes = ? WHERE journal_id = ?"
+    const updateSql = `UPDATE journal SET title = ?, anger = ?, contempt = ?, disgust = ?, enjoyment = ?, fear = ?, sadness = ?, surprise = ?, trigger_reason = ?, datetime = ?, notes = ? WHERE journal_id = ${id}`
 
-    database.query(insertSql)
-        .then(([rows, fieldData]) => res.status(200))
-        .catch(error => {
+    database.query(updateSql, journal)
+        .then(([rows, fieldData]) => {
+            res.status(200).json({});``
+        }).catch(error => {
             handleError(error, res);
         });
 }
 
 exports.deleteJournal = (req, res) => {
-    const id = req.body.journalId;
+    const id = req.params.id;
 
-    const sql = `DELETE FROM journal WHERE journal_id = ${id}`;
+    const deleteSql = `DELETE FROM journal WHERE journal_id = ${id}`;
 
-    database.query(insertSql)
-        .then(([rows, fieldData]) => res.status(200))
+    database.query(deleteSql)
+        .then(() => {
+            console.log('deleted')
+            res.status(200).json({});
+        })
         .catch(error => {
             handleError(error, res);
         });

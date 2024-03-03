@@ -16,7 +16,12 @@ exports.authenticateUser = (req, res) => {
                     res.status(200).json({
                         message: 'Login successful',
                         authenticated: true,
-                        userId: user['user_id']
+                        profile: {
+                            userId: user['user_id'],
+                            userName: user['username'],
+                            firstName: user['first_name'],
+                            lastName: user['last_name']
+                        }
                     });
                 } else {
                     res.status(401).json({

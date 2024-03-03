@@ -3,16 +3,16 @@ const express = require('express');
 const router = express.Router();
 const journalController = require('../controllers/journalController');
 
+router.delete('/delete/:id', journalController.deleteJournal)
+
 router.get('/getAllJournals', journalController.getAllJournals);
 
 router.get('/getAllJournals/:userId', journalController.getAllJournalsByUserId);
 
-router.get('/getJournal/:id', journalController.getJournalById);
+router.post('/getJournal/:id', journalController.getJournalById);
 
-router.post('/addJournal', journalController.addJournal);
+router.patch('/update/:id', journalController.updateJournal);
 
-router.patch('/updateJournal', journalController.updateJournal);
-
-router.delete('/deleteJournal', journalController.deleteJournal)
+router.post('/add', journalController.addJournal);
 
 module.exports = router;
