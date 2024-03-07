@@ -29,6 +29,11 @@ exports.authenticateUser = (req, res) => {
                         authenticated: false
                     });
                 }
+            } else {
+                res.status(401).json({
+                    message: 'Invalid credentials',
+                    authenticated: false
+                });
             }
         }).catch(error => {
         handleError(error, res);

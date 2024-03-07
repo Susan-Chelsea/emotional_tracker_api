@@ -100,6 +100,21 @@ exports.deleteJournal = (req, res) => {
         });
 }
 
+exports.overview = (req, res) => {
+    const {userId} = req.body;
+    const selectSQL = `SELECT * FROM journal where user_id = ${userId}`;
+
+    database.query(selectSQL)
+        .then(([rows, _fieldData]) => {
+            res.status(200).json({
+                success: true,
+                journals: rows,
+            });
+        }).catch(error => {
+        handleError(error, res);
+    });
+}
+
 const handleError = (error, res) => {
     res.status(500).json({
         success: false,

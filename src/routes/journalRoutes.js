@@ -9,6 +9,8 @@ router.get('/getAllJournals', journalController.getAllJournals);
 
 router.get('/getAllJournals/:userId', journalController.getAllJournalsByUserId);
 
+router.post('/journalOverview', journalController.overview)
+
 router.post('/getJournal/:id', journalController.getJournalById);
 
 router.patch('/update/:id', journalController.updateJournal);
