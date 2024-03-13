@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 exports.authenticateUser = (req, res) => {
     const {username, password} = req.body;
 
-    const selectSQL = `SELECT * FROM user where username = '${username}'`;
+    const selectSQL = `SELECT user.*, api_key.api_key FROM user INNER JOIN api_key ON user.user_id = api_key.user_id WHERE user.username = '${username}'`;
 
     database.query(selectSQL)
         .then(async ([rows, _fieldData]) => {
@@ -20,7 +20,8 @@ exports.authenticateUser = (req, res) => {
                             userId: user['user_id'],
                             userName: user['username'],
                             firstName: user['first_name'],
-                            lastName: user['last_name']
+                            lastName: user['last_name'],
+                            apiKey: user['api_key']
                         }
                     });
                 } else {
@@ -43,6 +44,7 @@ exports.authenticateUser = (req, res) => {
 }
 
 const handleError = (error, res) => {
+    console.error(error);
     res.status(500).json({
         success: false,
         message: `Error when getting users: ${error}`

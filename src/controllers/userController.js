@@ -36,13 +36,16 @@ exports.addUser = async (req, res) => {
 
     const newUserValues = Object.values(req.body).map(value => value);
 
-    const insertSql =
+    const insertUserSql =
         "INSERT INTO user " +
         "(username, password, first_name, last_name)" +
         " VALUES (?, ?, ?, ?)";
 
-    database.query(insertSql, newUserValues)
+    database.query(insertUserSql, newUserValues)
         .then(async () => {
+            const newUser = await getUserByUserName(newUserValues[0])
+            setApiKeyForUser(newUser);
+
             res.status(201).json({
                 message: 'User created!',
                 success: true,
@@ -53,22 +56,47 @@ exports.addUser = async (req, res) => {
 }
 
 const getUserByUserName = async (userName) => {
-    const selectSQL = `SELECT * FROM user where user_id = ${userName}`;
     let user;
+    const selectSQL = `SELECT * FROM user where username = "${userName}"`;
 
     try {
         const [rows, _fieldData] = await database.query(selectSQL);
         user = rows[0];
     } catch (error) {
-        throw error;
+        throw error
     }
 
     return user;
 }
 
+const setApiKeyForUser = (newUser) => {
+    const insertApiKeySql =
+        "INSERT INTO api_key " +
+        "(user_id, api_key)" +
+        " VALUES (?, ?)";
+
+    const userId = newUser['user_id'];
+
+    const apiKeyValues = [userId, genAPIKey()]
+
+    database.query(insertApiKeySql, apiKeyValues)
+        .then(async () => {
+            console.log('Successfully added apikey for user:', userId);
+        }).catch(error => {
+        throw error;
+    });
+}
+
 const handleError = (error, res) => {
+    console.error(error);
     res.status(500).json({
         success: false,
         message: `Error when getting users: ${error}`
     })
 }
+
+const genAPIKey = () => {
+    return [...Array(30)]
+        .map((e) => ((Math.random() * 36) | 0).toString(36))
+        .join('');
+};
